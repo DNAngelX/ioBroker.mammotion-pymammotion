@@ -1,0 +1,15 @@
+{
+    "account": "Account",
+    "advanced": "Advanced",
+    "bootstrapOnStart": "Bootstrap sidecar environment on adapter start",
+    "email": "Mammotion email",
+    "logDebug": "Debug",
+    "logError": "Error",
+    "logInfo": "Info",
+    "logWarning": "Warning",
+    "password": "Mammotion password",
+    "python": "Python",
+    "pythonExecutable": "Python executable or install directory (optional)",
+    "pythonHint": "Python 3.13+ must already be installed on the target system for current PyMammotion. Homebrew prefixes like /usr/local/opt/python@3.13 are accepted.",
+    "sidecarLogLevel": "Sidecar log level"
+}

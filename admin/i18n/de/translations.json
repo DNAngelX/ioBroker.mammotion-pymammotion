@@ -1,0 +1,18 @@
+{
+    "tplink adapter settings": "Adaptereinstellungen für TP-Link",
+    "connection": "Verbindung",
+    "useDiscovery": "Discovery aktivieren",
+    "deviceIp": "Geräte-IP (optional)",
+    "hubIp": "Hub-IP (optional)",
+    "credentials": "Zugangsdaten",
+    "username": "TP-Link Benutzername/E-Mail",
+    "password": "TP-Link Passwort",
+    "credentialsHint": "Zugangsdaten können für lokale Authentifizierung nötig sein. Keine Cloud-Steuerung.",
+    "sidecar": "Sidecar (optional)",
+    "useSidecar": "Sidecar-Provider verwenden",
+    "sidecarUrl": "Sidecar-URL (z.B. http://127.0.0.1:8080)",
+    "sidecarHint": "Nur verwenden, wenn der Node-Provider das Gerät nicht unterstützt.",
+    "advanced": "Erweitert",
+    "pollIntervalSeconds": "Polling-Intervall (Sekunden)",
+    "debug": "Debug-Logging aktivieren"
+}

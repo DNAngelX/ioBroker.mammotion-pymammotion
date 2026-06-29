@@ -1,0 +1,15 @@
+{
+    "account": "Konto",
+    "advanced": "Erweitert",
+    "bootstrapOnStart": "Sidecar-Umgebung beim Adapterstart bootstrappen",
+    "email": "Mammotion-E-Mail",
+    "logDebug": "Debug",
+    "logError": "Fehler",
+    "logInfo": "Info",
+    "logWarning": "Warnung",
+    "password": "Mammotion-Passwort",
+    "python": "Python",
+    "pythonExecutable": "Python-Datei oder Installationspfad (optional)",
+    "pythonHint": "Python 3.13+ muss für aktuelles PyMammotion bereits auf dem Zielsystem installiert sein. Homebrew-Pfade wie /usr/local/opt/python@3.13 werden akzeptiert.",
+    "sidecarLogLevel": "Sidecar-Loglevel"
+}

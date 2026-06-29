@@ -1,0 +1,72 @@
+{
+    "i18n": true,
+    "type": "tabs",
+    "items": {
+        "account": {
+            "type": "panel",
+            "label": "account",
+            "items": {
+                "email": {
+                    "type": "text",
+                    "label": "email",
+                    "newLine": true
+                },
+                "password": {
+                    "type": "password",
+                    "label": "password",
+                    "newLine": true
+                }
+            }
+        },
+        "python": {
+            "type": "panel",
+            "label": "python",
+            "items": {
+                "pythonExecutable": {
+                    "type": "text",
+                    "label": "pythonExecutable",
+                    "newLine": true
+                },
+                "bootstrapOnStart": {
+                    "type": "checkbox",
+                    "label": "bootstrapOnStart",
+                    "newLine": true
+                },
+                "pythonHint": {
+                    "type": "staticText",
+                    "label": "pythonHint",
+                    "newLine": true
+                }
+            }
+        },
+        "advanced": {
+            "type": "panel",
+            "label": "advanced",
+            "items": {
+                "sidecarLogLevel": {
+                    "type": "select",
+                    "label": "sidecarLogLevel",
+                    "newLine": true,
+                    "options": [
+                        {
+                            "value": "info",
+                            "label": "logInfo"
+                        },
+                        {
+                            "value": "debug",
+                            "label": "logDebug"
+                        },
+                        {
+                            "value": "warning",
+                            "label": "logWarning"
+                        },
+                        {
+                            "value": "error",
+                            "label": "logError"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
