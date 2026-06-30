@@ -101,6 +101,15 @@ class SidecarClient extends import_node_events.EventEmitter {
   sendCommand(params) {
     return this.request("send_command", params);
   }
+  setSetting(params) {
+    return this.request("set_setting", params);
+  }
+  zoneAction(params) {
+    return this.request("zone_action", params);
+  }
+  startAreas(params) {
+    return this.request("start_areas", params);
+  }
   async handleStdoutLine(line) {
     if (!line.trim()) {
       return;

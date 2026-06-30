@@ -10,6 +10,6 @@
     "password": "Mammotion-Passwort",
     "python": "Python",
     "pythonExecutable": "Python-Datei oder Installationspfad (optional)",
-    "pythonHint": "Python 3.13+ muss für aktuelles PyMammotion bereits auf dem Zielsystem installiert sein. Homebrew-Pfade wie /usr/local/opt/python@3.13 werden akzeptiert.",
+    "pythonHint": "Python 3.13+ muss bereits installiert sein. Siehe README/docs/python-install.md und scripts/python/. Homebrew-Pfade wie /usr/local/opt/python@3.13 werden akzeptiert.",
     "sidecarLogLevel": "Sidecar-Loglevel"
 }

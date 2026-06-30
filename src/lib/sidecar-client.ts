@@ -16,7 +16,10 @@ import {
     SidecarListDevicesResult,
     SidecarLoginParams,
     SidecarLoginResult,
+    SidecarSetSettingParams,
     SidecarSendCommandParams,
+    SidecarStartAreasParams,
+    SidecarZoneActionParams,
 } from "./protocol";
 
 interface PendingRequest {
@@ -116,6 +119,18 @@ export class SidecarClient extends EventEmitter {
 
     public sendCommand(params: SidecarSendCommandParams): Promise<SidecarCommandResult> {
         return this.request("send_command", params);
+    }
+
+    public setSetting(params: SidecarSetSettingParams): Promise<SidecarCommandResult> {
+        return this.request("set_setting", params);
+    }
+
+    public zoneAction(params: SidecarZoneActionParams): Promise<SidecarCommandResult> {
+        return this.request("zone_action", params);
+    }
+
+    public startAreas(params: SidecarStartAreasParams): Promise<SidecarCommandResult> {
+        return this.request("start_areas", params);
     }
 
     private async handleStdoutLine(line: string): Promise<void> {

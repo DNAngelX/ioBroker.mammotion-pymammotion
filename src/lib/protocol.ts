@@ -1,11 +1,33 @@
 export type Primitive = string | number | boolean | null;
 
-export type SidecarCommand = "start" | "pause" | "stop" | "dock" | "refresh";
+export type SidecarCommand =
+    | "start"
+    | "pause"
+    | "stop"
+    | "dock"
+    | "refresh"
+    | "leaveDock"
+    | "cancelTask"
+    | "nudgeForward"
+    | "nudgeBack"
+    | "nudgeLeft"
+    | "nudgeRight"
+    | "bladeOn"
+    | "bladeOff";
+
+export interface NormalizedDeviceZone {
+    hash: number;
+    name: string;
+    order: number;
+    selected: boolean;
+    active: boolean;
+}
 
 export interface NormalizedDeviceSnapshot {
     id: string;
     name: string;
     info: {
+        deviceType: string;
         productKey: string;
         firmwareVersion: string;
         model: string;
@@ -20,6 +42,11 @@ export interface NormalizedDeviceSnapshot {
         state: string;
     };
     telemetry: Record<string, Primitive>;
+    capabilities: Record<string, Primitive>;
+    diagnostics: Record<string, Primitive>;
+    configuration: Record<string, Primitive>;
+    configurationLimits: Record<string, Primitive>;
+    zones: NormalizedDeviceZone[];
 }
 
 export interface JsonRpcRequest<TParams = unknown> {
@@ -98,10 +125,28 @@ export interface SidecarSendCommandParams {
     command: SidecarCommand;
 }
 
+export interface SidecarSetSettingParams {
+    device_id: string;
+    key: string;
+    value: Primitive;
+}
+
+export interface SidecarZoneActionParams {
+    device_id: string;
+    action: "syncMap" | "syncAreaNames" | "syncPlans";
+}
+
+export interface SidecarStartAreasParams {
+    device_id: string;
+    area_hashes: number[];
+    overrides?: Record<string, Primitive>;
+    start_immediately?: boolean;
+}
+
 export interface SidecarCommandResult {
     ok: boolean;
     device_id: string;
-    command: SidecarCommand;
+    command: SidecarCommand | string;
     message?: string;
 }
 

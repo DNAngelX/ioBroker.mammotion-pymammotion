@@ -10,7 +10,8 @@ import {
 import { bootstrapPythonEnvironment, detectPythonVersion } from "./lib/bootstrap";
 import { checkPymammotionUpdates } from "./lib/pymammotion-metadata";
 import { SidecarClient } from "./lib/sidecar-client";
-import { NormalizedDeviceSnapshot, SidecarCommand, SidecarNotificationMap } from "./lib/protocol";
+import { NormalizedDeviceSnapshot, Primitive, SidecarCommand, SidecarNotificationMap } from "./lib/protocol";
+import { buildZonePreferences, mergeZonePreference, parseAreaSelection, serializeAreaSelection } from "./lib/zone-selection";
 
 const RESTART_WINDOW_MS = 10 * 60 * 1000;
 const RESTART_LIMIT = 5;
@@ -41,6 +42,10 @@ class MammotionPyMammotion extends utils.Adapter {
         await ensureBaseObjects(this);
         await this.resetInfoStates();
         await this.subscribeStatesAsync("devices.*.commands.*");
+        await this.subscribeStatesAsync("devices.*.controls.*");
+        await this.subscribeStatesAsync("devices.*.configuration.*");
+        await this.subscribeStatesAsync("devices.*.configuration.limits.*");
+        await this.subscribeStatesAsync("devices.*.zones.*");
         await this.subscribeStatesAsync("diagnostics.*");
 
         try {
@@ -328,6 +333,7 @@ class MammotionPyMammotion extends utils.Adapter {
         await this.ensureDeviceRegistration(snapshot.id, snapshot.name);
         await applyDeviceSnapshot(this, snapshot, previous);
         this.deviceSnapshots.set(snapshot.id, snapshot);
+        await this.syncZoneConfiguration(snapshot);
         await this.setStateChangedAsync("info.lastSync", new Date().toISOString(), true);
         await this.updateConnectionState();
     }
@@ -364,6 +370,32 @@ class MammotionPyMammotion extends utils.Adapter {
             void this.clearSessionCache("diagnostics.clearCache");
             return;
         }
+        const parsedConfiguration = this.parseConfigurationId(id);
+        if (parsedConfiguration) {
+            void this.executeConfigurationWrite(parsedConfiguration.deviceId, parsedConfiguration.key, state, parsedConfiguration.stateId);
+            return;
+        }
+        const parsedZoneAction = this.parseZoneActionId(id);
+        if (parsedZoneAction) {
+            void this.executeZoneAction(parsedZoneAction.deviceId, parsedZoneAction.action, parsedZoneAction.stateId);
+            return;
+        }
+        const parsedZoneValue = this.parseZoneValueId(id);
+        if (parsedZoneValue) {
+            void this.executeZoneValueWrite(parsedZoneValue.deviceId, parsedZoneValue.field, state, parsedZoneValue.stateId);
+            return;
+        }
+        const parsedZoneConfig = this.parseZoneConfigId(id);
+        if (parsedZoneConfig) {
+            void this.executeZoneConfigWrite(
+                parsedZoneConfig.deviceId,
+                parsedZoneConfig.zoneHash,
+                parsedZoneConfig.field,
+                state,
+                parsedZoneConfig.stateId,
+            );
+            return;
+        }
         const parsed = this.parseCommandId(id);
         if (!parsed) {
             return;
@@ -375,16 +407,75 @@ class MammotionPyMammotion extends utils.Adapter {
         void this.executeCommand(parsed.deviceId, parsed.command, parsed.stateId);
     }
 
+    private parseConfigurationId(id: string): { deviceId: string; key: string; stateId: string } | null {
+        const localId = id.replace(`${this.namespace}.`, "");
+        const match = localId.match(/^devices\.([^.]+)\.configuration\.(?!limits\.)([^.]+)$/);
+        if (!match) {
+            return null;
+        }
+        return {
+            deviceId: this.deviceChannels.get(match[1]) ?? match[1],
+            key: match[2],
+            stateId: localId,
+        };
+    }
+
+    private parseZoneActionId(
+        id: string,
+    ): { deviceId: string; action: "startSelected" | "startAll" | "syncMap" | "syncAreaNames" | "syncPlans"; stateId: string } | null {
+        const localId = id.replace(`${this.namespace}.`, "");
+        const match = localId.match(/^devices\.([^.]+)\.zones\.(startSelected|startAll|syncMap|syncAreaNames|syncPlans)$/);
+        if (!match) {
+            return null;
+        }
+        return {
+            deviceId: this.deviceChannels.get(match[1]) ?? match[1],
+            action: match[2] as "startSelected" | "startAll" | "syncMap" | "syncAreaNames" | "syncPlans",
+            stateId: localId,
+        };
+    }
+
+    private parseZoneValueId(id: string): { deviceId: string; field: "selectedAreas" | "startPayload"; stateId: string } | null {
+        const localId = id.replace(`${this.namespace}.`, "");
+        const match = localId.match(/^devices\.([^.]+)\.zones\.(selectedAreas|startPayload)$/);
+        if (!match) {
+            return null;
+        }
+        return {
+            deviceId: this.deviceChannels.get(match[1]) ?? match[1],
+            field: match[2] as "selectedAreas" | "startPayload",
+            stateId: localId,
+        };
+    }
+
+    private parseZoneConfigId(
+        id: string,
+    ): { deviceId: string; zoneHash: number; field: "selected" | "order"; stateId: string } | null {
+        const localId = id.replace(`${this.namespace}.`, "");
+        const match = localId.match(/^devices\.([^.]+)\.zones\.zone_(\d+)\.config\.(selected|order)$/);
+        if (!match) {
+            return null;
+        }
+        return {
+            deviceId: this.deviceChannels.get(match[1]) ?? match[1],
+            zoneHash: Number(match[2]),
+            field: match[3] as "selected" | "order",
+            stateId: localId,
+        };
+    }
+
     private parseCommandId(id: string): { deviceId: string; command: SidecarCommand; stateId: string } | null {
         const localId = id.replace(`${this.namespace}.`, "");
-        const match = localId.match(/^devices\.([^.]+)\.commands\.(start|pause|stop|dock|refresh)$/);
+        const match = localId.match(
+            /^devices\.([^.]+)\.(commands|controls)\.(start|pause|stop|dock|refresh|leaveDock|cancelTask|nudgeForward|nudgeBack|nudgeLeft|nudgeRight|bladeOn|bladeOff)$/,
+        );
         if (!match) {
             return null;
         }
         const deviceId = this.deviceChannels.get(match[1]) ?? match[1];
         return {
             deviceId,
-            command: match[2] as SidecarCommand,
+            command: match[3] as SidecarCommand,
             stateId: localId,
         };
     }
@@ -406,6 +497,209 @@ class MammotionPyMammotion extends utils.Adapter {
             this.log.warn(`Command ${command} failed for ${deviceId}: ${String(error)}`);
         } finally {
             await this.setStateChangedAsync(stateId, false, true);
+        }
+    }
+
+    private async executeConfigurationWrite(
+        deviceId: string,
+        key: string,
+        state: ioBroker.State,
+        stateId: string,
+    ): Promise<void> {
+        try {
+            if (!this.sidecar) {
+                throw new Error("Sidecar is not running");
+            }
+            await this.sidecar.setSetting({
+                device_id: deviceId,
+                key,
+                value: (state.val as Primitive) ?? null,
+            });
+            await this.setStateChangedAsync(stateId, state.val as ioBroker.StateValue, true);
+            const snapshotResult = await this.sidecar.getSnapshot({ device_id: deviceId });
+            if (snapshotResult.snapshot) {
+                await this.applySnapshot(snapshotResult.snapshot);
+            }
+        } catch (error) {
+            await this.setStateChangedAsync("info.lastError", String(error), true);
+            this.log.warn(`Configuration write ${key} failed for ${deviceId}: ${String(error)}`);
+        }
+    }
+
+    private async executeZoneAction(
+        deviceId: string,
+        action: "startSelected" | "startAll" | "syncMap" | "syncAreaNames" | "syncPlans",
+        stateId: string,
+    ): Promise<void> {
+        try {
+            if (!this.sidecar) {
+                throw new Error("Sidecar is not running");
+            }
+
+            if (action === "syncMap" || action === "syncAreaNames" || action === "syncPlans") {
+                await this.sidecar.zoneAction({
+                    device_id: deviceId,
+                    action,
+                });
+            } else {
+                const channelId = normalizeDeviceChannelId(deviceId);
+                const selectedState = await this.getStateAsync(`devices.${channelId}.zones.selectedAreas`);
+                const payloadState = await this.getStateAsync(`devices.${channelId}.zones.startPayload`);
+                const payload = this.parseZoneStartPayload(payloadState?.val);
+                const selectedAreas =
+                    action === "startAll"
+                        ? []
+                        : parseAreaSelection(payload?.areas ?? selectedState?.val);
+                const overrides = payload ? this.extractZoneOverrides(payload) : undefined;
+                const startImmediately =
+                    typeof payload?.startImmediately === "boolean" ? Boolean(payload.startImmediately) : true;
+
+                await this.sidecar.startAreas({
+                    device_id: deviceId,
+                    area_hashes: selectedAreas,
+                    overrides,
+                    start_immediately: startImmediately,
+                });
+            }
+
+            const snapshotResult = await this.sidecar.getSnapshot({ device_id: deviceId });
+            if (snapshotResult.snapshot) {
+                await this.applySnapshot(snapshotResult.snapshot);
+            }
+        } catch (error) {
+            await this.setStateChangedAsync("info.lastError", String(error), true);
+            this.log.warn(`Zone action ${action} failed for ${deviceId}: ${String(error)}`);
+        } finally {
+            await this.setStateChangedAsync(stateId, false, true);
+        }
+    }
+
+    private parseZoneStartPayload(
+        value: unknown,
+    ): { areas?: unknown; startImmediately?: unknown; [key: string]: unknown } | null {
+        const text = String(value ?? "").trim();
+        if (!text) {
+            return null;
+        }
+        try {
+            const parsed = JSON.parse(text);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+                return parsed as { areas?: unknown; startImmediately?: unknown; [key: string]: unknown };
+            }
+        } catch (error) {
+            this.log.debug(`Ignoring invalid zone payload JSON: ${String(error)}`);
+        }
+        return null;
+    }
+
+    private extractZoneOverrides(payload: Record<string, unknown>): Record<string, Primitive> | undefined {
+        const overrides: Record<string, Primitive> = {};
+        for (const [key, value] of Object.entries(payload)) {
+            if (key === "areas" || key === "startImmediately") {
+                continue;
+            }
+            if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || value === null) {
+                overrides[key] = value;
+            }
+        }
+        return Object.keys(overrides).length ? overrides : undefined;
+    }
+
+    private async executeZoneValueWrite(
+        deviceId: string,
+        field: "selectedAreas" | "startPayload",
+        state: ioBroker.State,
+        stateId: string,
+    ): Promise<void> {
+        try {
+            if (field === "selectedAreas") {
+                const snapshot = this.deviceSnapshots.get(deviceId);
+                const knownZoneHashes = snapshot?.zones.map((zone) => zone.hash) ?? [];
+                let selectedAreas = parseAreaSelection(state.val);
+                if (knownZoneHashes.length) {
+                    selectedAreas = selectedAreas.filter((hash) => knownZoneHashes.includes(hash));
+                }
+                const serialized = serializeAreaSelection(selectedAreas);
+                await this.setStateChangedAsync(stateId, serialized, true);
+                await this.syncConfiguredZonesForDevice(deviceId, selectedAreas);
+                return;
+            }
+
+            await this.setStateChangedAsync(stateId, state.val as ioBroker.StateValue, true);
+        } catch (error) {
+            await this.setStateChangedAsync("info.lastError", String(error), true);
+            this.log.warn(`Zone value write ${field} failed for ${deviceId}: ${String(error)}`);
+        }
+    }
+
+    private async executeZoneConfigWrite(
+        deviceId: string,
+        zoneHash: number,
+        field: "selected" | "order",
+        state: ioBroker.State,
+        stateId: string,
+    ): Promise<void> {
+        try {
+            const channelId = normalizeDeviceChannelId(deviceId);
+            const selectedAreasState = await this.getStateAsync(`devices.${channelId}.zones.selectedAreas`);
+            let selectedAreas = parseAreaSelection(selectedAreasState?.val);
+
+            if (field === "selected") {
+                const orderState = await this.getStateAsync(`devices.${channelId}.zones.zone_${zoneHash}.config.order`);
+                selectedAreas = mergeZonePreference(selectedAreas, zoneHash, Boolean(state.val), Number(orderState?.val ?? 0));
+                await this.setStateChangedAsync(stateId, Boolean(state.val), true);
+            } else {
+                const preferredOrder = Number(state.val ?? 0);
+                const selectedState = await this.getStateAsync(`devices.${channelId}.zones.zone_${zoneHash}.config.selected`);
+                const selected = preferredOrder > 0 ? true : Boolean(selectedState?.val);
+                selectedAreas = mergeZonePreference(selectedAreas, zoneHash, selected, preferredOrder);
+                await this.setStateChangedAsync(stateId, preferredOrder > 0 ? Math.trunc(preferredOrder) : 0, true);
+            }
+
+            const serialized = serializeAreaSelection(selectedAreas);
+            await this.setStateChangedAsync(`devices.${channelId}.zones.selectedAreas`, serialized, true);
+            await this.syncConfiguredZonesForDevice(deviceId, selectedAreas);
+        } catch (error) {
+            await this.setStateChangedAsync("info.lastError", String(error), true);
+            this.log.warn(`Zone config write ${field} failed for ${deviceId}/${zoneHash}: ${String(error)}`);
+        }
+    }
+
+    private async syncZoneConfiguration(snapshot: NormalizedDeviceSnapshot): Promise<void> {
+        const channelId = normalizeDeviceChannelId(snapshot.id);
+        const selectedAreasState = await this.getStateAsync(`devices.${channelId}.zones.selectedAreas`);
+        const knownZoneHashes = snapshot.zones.map((zone) => zone.hash);
+
+        let configuredAreas = parseAreaSelection(selectedAreasState?.val).filter((hash) => knownZoneHashes.includes(hash));
+        if (!configuredAreas.length && knownZoneHashes.length) {
+            configuredAreas = [...knownZoneHashes];
+            await this.setStateChangedAsync(`devices.${channelId}.zones.selectedAreas`, serializeAreaSelection(configuredAreas), true);
+        }
+
+        await this.syncConfiguredZonesForDevice(snapshot.id, configuredAreas);
+    }
+
+    private async syncConfiguredZonesForDevice(deviceId: string, configuredAreas: number[]): Promise<void> {
+        const snapshot = this.deviceSnapshots.get(deviceId);
+        if (!snapshot) {
+            return;
+        }
+        const channelId = normalizeDeviceChannelId(deviceId);
+        const preferences = buildZonePreferences(
+            snapshot.zones.map((zone) => zone.hash),
+            configuredAreas,
+        );
+        for (const entry of preferences) {
+            await this.setStateChangedAsync(
+                `devices.${channelId}.zones.zone_${entry.hash}.config.selected`,
+                entry.selected,
+                true,
+            );
+            await this.setStateChangedAsync(
+                `devices.${channelId}.zones.zone_${entry.hash}.config.order`,
+                entry.order,
+                true,
+            );
         }
     }
 

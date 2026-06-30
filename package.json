@@ -6,7 +6,7 @@
     "name": "Lenny",
     "email": "lenny@example.com"
   },
-  "homepage": "https://github.com/lenny/ioBroker.mammotion-pymammotion",
+  "homepage": "https://github.com/DNAngelX/ioBroker.mammotion.pymammotion",
   "license": "GPL-3.0-only",
   "keywords": [
     "ioBroker",
@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/lenny/ioBroker.mammotion-pymammotion.git"
+    "url": "https://github.com/DNAngelX/ioBroker.mammotion.pymammotion.git"
   },
   "engines": {
     "node": ">= 20"
@@ -57,7 +57,9 @@
     "admin{,/!(src)/**}/!(tsconfig|tsconfig.*|.eslintrc).{json,json5}",
     "admin{,/!(src)/**}/*.{html,css,png,svg,jpg,js}",
     "build/",
+    "docs/",
     "python-daemon/",
+    "scripts/",
     "io-package.json",
     "LICENSE",
     "README.md"
@@ -69,18 +71,21 @@
     "prebuild:ts": "rimraf build",
     "build:ts": "build-adapter ts",
     "watch:ts": "build-adapter ts --watch",
-    "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
+    "test:ts": "mocha --config test/mocharc.custom.json \"src/*.test.ts\" \"src/**/*.test.ts\"",
     "test:package": "mocha test/package --exit",
     "test:integration": "mocha test/integration --exit",
     "test": "npm run test:ts && npm run test:package",
     "check": "tsc --noEmit",
     "lint": "eslint --ext .ts src/",
+    "python:check": "./scripts/python/check-python.sh",
+    "python:install:macos": "./scripts/python/install-macos.sh",
+    "python:install:linux": "./scripts/python/install-linux.sh",
     "translate": "translate-adapter",
     "release": "release-script",
     "dev-server": "dev-server --temp /tmp/iobroker-mammotion-pymammotion-devserver"
   },
   "bugs": {
-    "url": "https://github.com/lenny/ioBroker.mammotion-pymammotion/issues"
+    "url": "https://github.com/DNAngelX/ioBroker.mammotion.pymammotion/issues"
   },
   "overrides": {
     "@iobroker/dev-server": {
