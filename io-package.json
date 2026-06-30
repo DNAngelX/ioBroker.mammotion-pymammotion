@@ -1,95 +1,108 @@
 {
-    "common": {
-        "name": "mammotion-pymammotion",
-        "version": "0.0.1",
-        "news": {
-            "0.0.1": {
-                "en": "Initial sidecar-based release using PyMammotion",
-                "de": "Erste Sidecar-basierte Version mit PyMammotion"
-            }
-        },
-        "title": "Mammotion (PyMammotion Sidecar)",
-        "titleLang": {
-            "en": "Mammotion (PyMammotion Sidecar)",
-            "de": "Mammotion (PyMammotion-Sidecar)"
-        },
-        "desc": {
-            "en": "ioBroker adapter for Mammotion devices using a PyMammotion sidecar",
-            "de": "ioBroker-Adapter für Mammotion-Geräte mit PyMammotion-Sidecar"
-        },
-        "authors": [
-            "DNAngel <stolly82@web.de>"
-        ],
-        "keywords": [
-            "ioBroker",
-            "Mammotion",
-            "PyMammotion",
-            "Luba",
-            "Yuka"
-        ],
-        "licenseInformation": {
-            "type": "free",
-            "license": "GPL-3.0-only"
-        },
-        "platform": "Javascript/Node.js",
-        "main": "build/main.js",
-        "icon": "mammotion.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/DNAngelX/ioBroker.mammotion.pymammotion/main/admin/mammotion.png",
-        "readme": "https://github.com/DNAngelX/ioBroker.mammotion.pymammotion/blob/main/README.md",
-        "loglevel": "info",
-        "tier": 3,
-        "mode": "daemon",
-        "type": "garden",
-        "compact": true,
-        "connectionType": "cloud",
-        "dataSource": "push",
-        "adminUI": {
-            "config": "json"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=5.0.19"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=6.13.16"
-            }
-        ]
+  "common": {
+    "name": "mammotion-pymammotion",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Initial release",
+        "de": "Erstmalige Freigabe",
+        "ru": "Первоначальное освобождение",
+        "pt": "Lançamento inicial",
+        "nl": "Eerste vrijgave",
+        "fr": "Libération initiale",
+        "it": "Rilascio iniziale",
+        "es": "Liberación inicial",
+        "pl": "Początkowe wydanie",
+        "uk": "Початковий реліз",
+        "zh-cn": "初步释放"
+      },
+      "0.0.1": {
+        "en": "Initial sidecar-based release using PyMammotion",
+        "de": "Erste Sidecar-basierte Version mit PyMammotion"
+      }
     },
-    "native": {
-        "email": "",
-        "password": "",
-        "pythonExecutable": "",
-        "sidecarLogLevel": "info",
-        "bootstrapOnStart": true
+    "title": "Mammotion (PyMammotion Sidecar)",
+    "titleLang": {
+      "en": "Mammotion (PyMammotion Sidecar)",
+      "de": "Mammotion (PyMammotion-Sidecar)"
     },
-    "encryptedNative": [
-        "password"
+    "desc": {
+      "en": "ioBroker adapter for Mammotion devices using a PyMammotion sidecar",
+      "de": "ioBroker-Adapter für Mammotion-Geräte mit PyMammotion-Sidecar"
+    },
+    "authors": [
+      "DNAngel <stolly82@web.de>"
     ],
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Device or service connected",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "keywords": [
+      "ioBroker",
+      "Mammotion",
+      "PyMammotion",
+      "Luba",
+      "Yuka"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "GPL-3.0-only"
+    },
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "mammotion.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/DNAngelX/ioBroker.mammotion.pymammotion/main/admin/mammotion.png",
+    "readme": "https://github.com/DNAngelX/ioBroker.mammotion.pymammotion/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "garden",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=6.13.16"
+      }
     ]
+  },
+  "native": {
+    "email": "",
+    "password": "",
+    "pythonExecutable": "",
+    "sidecarLogLevel": "info",
+    "bootstrapOnStart": true
+  },
+  "encryptedNative": [
+    "password"
+  ],
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
