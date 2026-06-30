@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "mammotion-pymammotion",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Zone settings, ordering, and scheduling support",
+        "de": "Zoneneinstellungen, Bestellung und Planungsunterstützung",
+        "ru": "Настройки зоны, заказ и поддержка планирования",
+        "pt": "Configurações da zona, ordenação e suporte de agendamento",
+        "nl": "Zone-instellingen, bestelling en planning ondersteuning",
+        "fr": "Paramètres de zone, commande et support de programmation",
+        "it": "Impostazioni zone, ordinazione e supporto di pianificazione",
+        "es": "Ajustes de zonas, pedidos y apoyo de programación",
+        "pl": "Ustawienia strefy, zamawianie i obsługa rozkładów",
+        "uk": "Налаштування зони, замовлення та супровід",
+        "zh-cn": "区设置、顺序和调度支持"
+      },
       "0.1.1": {
         "en": "Automatic re-login when the sidecar connection is lost",
         "de": "Automatisches Re-Login bei Verlust der Sidecar-Verbindung",

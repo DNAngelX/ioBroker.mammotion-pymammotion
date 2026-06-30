@@ -148,7 +148,7 @@ If `areas` is omitted, `startSelected` uses `zones.selectedAreas`.
 - In that case, retry the sync later.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.1.2 (2026-06-30)
 * Zone settings, ordering, and scheduling support
 
 ### 0.1.1 (2026-06-30)
