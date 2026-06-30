@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "mammotion-pymammotion",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
+      "0.1.1": {
+        "en": "Automatic re-login when the sidecar connection is lost",
+        "de": "Automatisches Re-Login bei Verlust der Sidecar-Verbindung",
+        "ru": "Автоматическая перерегистрация, когда соединение с коляской потеряно",
+        "pt": "Re-login automático quando a conexão sidecar é perdida",
+        "nl": "Automatische re-login wanneer de zijspanverbinding verloren gaat",
+        "fr": "Re-connecter automatiquement lorsque la connexion du sidecar est perdue",
+        "it": "Re-login automatico quando la connessione sidecar viene persa",
+        "es": "Re-login automático cuando la conexión sidecar se pierde",
+        "pl": "Automatyczne ponowne logowanie po utracie połączenia bocznego",
+        "uk": "Автоматична повторна логіна при з'єднанні бічних вагонів втрачається",
+        "zh-cn": "侧车厢连接丢失时自动重新登录"
+      },
       "0.1.0": {
         "en": "Initial release",
         "de": "Erstmalige Freigabe",
