@@ -15,6 +15,8 @@ install_ok=0
 
 if command -v apt-get >/dev/null 2>&1; then
     apt-get update
+    # python3-setuptools provides 'distutils', removed in Python 3.12+, needed by older node-gyp
+    apt-get install -y python3-setuptools 2>/dev/null || true
     if apt-get install -y python3.13 python3.13-venv; then
         install_ok=1
     fi

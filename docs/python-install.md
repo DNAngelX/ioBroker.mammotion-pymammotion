@@ -37,6 +37,12 @@ Es gibt **kein** garantiert universelles Installationskommando für alle Distrib
 ./scripts/python/install-linux.sh
 ```
 
+**Hinweis für ioBroker-Installationen:** Python 3.12+ hat das `distutils`-Modul entfernt. Ältere native Node.js-Module (z.B. von anderen Adaptern) benötigen es aber. Falls `iobroker url ...` mit `gyp ERR! ModuleNotFoundError: No module named 'distutils'` abbricht, installiere vor dem Adapter-Install:
+
+```bash
+sudo apt install python3-setuptools
+```
+
 Das Skript versucht Paketinstallationen über:
 
 - `apt-get`
