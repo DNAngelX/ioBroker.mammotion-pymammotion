@@ -18,6 +18,7 @@ export type SidecarCommand =
 export interface NormalizedDeviceZone {
     hash: number;
     name: string;
+    nameSource: "map" | "fallback";
     order: number;
     selected: boolean;
     active: boolean;

@@ -406,6 +406,12 @@ class Sidecar:
         area_map = getattr(map_data, "area", {}) or {}
         return sorted(self.to_int(hash_id, 0) for hash_id in area_map.keys() if self.to_int(hash_id, 0) > 0)
 
+    def resolve_area_name(self, area_names: dict[int, str], hash_id: int) -> tuple[str, str]:
+        explicit_name = str(area_names.get(hash_id, "")).strip()
+        if explicit_name:
+            return explicit_name, "map"
+        return f"zone {hash_id}", "fallback"
+
     def resolve_public_device_limits(self, device: Any, product_key: str, *extra_keys: Any) -> Any:
         mower_state = getattr(device, "mower_state", None)
         candidate_keys: list[str] = []
@@ -618,11 +624,13 @@ class Sidecar:
             }
         )
         zones = []
-        for index, hash_id in enumerate(known_area_hashes, start=1):
+        for hash_id in known_area_hashes:
+            zone_name, zone_name_source = self.resolve_area_name(area_names, hash_id)
             zones.append(
                 {
                     "hash": hash_id,
-                    "name": area_names.get(hash_id, f"area {index}"),
+                    "name": zone_name,
+                    "nameSource": zone_name_source,
                     "order": selected_zone_hashes.index(hash_id) + 1 if hash_id in selected_zone_hashes else 0,
                     "selected": hash_id in selected_zone_hashes,
                     "active": hash_id == current_work_zone,

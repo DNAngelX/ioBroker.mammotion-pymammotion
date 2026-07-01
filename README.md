@@ -113,6 +113,8 @@ Important:
 - `status.*` stays read-only runtime information.
 - `config.*` is the writable automation configuration.
 - Changing `config.selected` or `config.order` automatically updates `zones.selectedAreas`.
+- `info.nameSource` shows whether the displayed zone name comes from Mammotion map data (`map`) or is only a local fallback (`fallback`).
+- Fallback names now use `zone <hash>` so they cannot be confused with Mammotion app labels like `area 1`, `area 2`, etc.
 
 ### `startPayload`
 
@@ -148,6 +150,9 @@ If `areas` is omitted, `startSelected` uses `zones.selectedAreas`.
 - In that case, retry the sync later.
 
 ## Changelog
+### **WORK IN PROGRESS**
+* Fixed zone name display
+
 ### 0.1.2 (2026-06-30)
 * Zone settings, ordering, and scheduling support
 

@@ -711,6 +711,13 @@ async function ensureZoneObjects(
         read: true,
         write: false,
     });
+    await ensureState(adapter, `${zoneId}.info.nameSource`, {
+        name: "Name source",
+        type: "string",
+        role: "text",
+        read: true,
+        write: false,
+    });
     await ensureState(adapter, `${zoneId}.status.selected`, {
         name: "Selected",
         type: "boolean",
@@ -982,8 +989,14 @@ export async function applyDeviceSnapshot(
 
     for (const zone of snapshot.zones) {
         const zoneId = await ensureZoneObjects(adapter, baseId, zone.hash);
+        await adapter.extendObjectAsync(zoneId, {
+            common: {
+                name: zone.name,
+            },
+        });
         await adapter.setStateChangedAsync(`${zoneId}.info.hash`, zone.hash, true);
         await adapter.setStateChangedAsync(`${zoneId}.info.name`, zone.name, true);
+        await adapter.setStateChangedAsync(`${zoneId}.info.nameSource`, zone.nameSource, true);
         await adapter.setStateChangedAsync(`${zoneId}.status.selected`, zone.selected, true);
         await adapter.setStateChangedAsync(`${zoneId}.status.active`, zone.active, true);
         await adapter.setStateChangedAsync(`${zoneId}.status.order`, zone.order, true);
